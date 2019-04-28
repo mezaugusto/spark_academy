@@ -34,7 +34,8 @@ object C1Assignment {
     val orders_df = load_jsonl("gs://de-training-input/alimazon/50000/client-orders/")
     val orders_by_product_sorted = sort_by_product(orders_df)
     orders_by_product_sorted.
+      coalesce(1).
       write.
-      json("gs://de-training-output-augustomeza/assignments/c1/output")
+      json("gs://de-training-output-augustomeza/assignments/c1/output.json")
   }
 }
