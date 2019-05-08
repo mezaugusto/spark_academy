@@ -3,8 +3,8 @@ import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.{ Dataset, Row, SparkSession }
 import org.apache.spark.sql.functions.{ desc, date_format }
-import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
-import java.time.{LocalDateTime, Duration}
+import org.apache.spark.sql.types.{ IntegerType, StructField, StructType }
+import java.time.{ LocalDateTime, Duration }
  
 object C5Assignment {
 
@@ -20,7 +20,7 @@ object C5Assignment {
       .getOrCreate
 
     val base_path = "gs://de-training-output-augustomeza/assignment-5"
-    val attempt = "0"
+    val attempt = "2"
 
     def load_jsonl(dataset_bucket_path: String): Dataset[Row] = {
       spark.read.format("json").load(dataset_bucket_path + "*.jsonl.gz")
@@ -28,13 +28,12 @@ object C5Assignment {
 
     def getPartitionsDF(df: Dataset[Row]):Dataset[Row] = {
       val schema = new StructType().
-        add(StructField("index", IntegerType, /* nullable: */ false)).
-        add(StructField("value", IntegerType, /* nullable: */ false))
+        add(StructField("partition_size", IntegerType, /* nullable: */ false))
         
       val partitions = df.rdd.mapPartitionsWithIndex(
-        (index, partition) => List(Row(index, partition.size)).toIterator)
+        (index, partition) => List(Row(partition.size)).toIterator)
 
-      return spark.createDataFrame(partitions, schema).orderBy(desc("value"))
+      return spark.createDataFrame(partitions, schema).coalesce(1).orderBy(desc("partition_size"))
     }
 
     def printDuration(start: LocalDateTime, end: LocalDateTime) = {
@@ -52,7 +51,7 @@ object C5Assignment {
         format("com.databricks.spark.csv").
         option("header", true).
         option("delimiter", ",").
-        save(s"$path-$attempt")
+        save(s"$path/$attempt")
     }
 
     val orders_ds = load_jsonl("gs://de-training-input/alimazon/200000/client-orders/")
