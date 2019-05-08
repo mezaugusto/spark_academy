@@ -1,6 +1,6 @@
 name := "C4 Assignment"
 
-version := "1.0.4"
+version := "1.0.6"
 
 scalaVersion := "2.11.0"
 

@@ -20,7 +20,7 @@ object C4Assignment {
     .getOrCreate
 
     val base_path = "gs://de-training-output-augustomeza"
-    val attempt = "2"
+    val attempt = "3"
     val discount = 0.9
     val digits = 2
 
@@ -41,7 +41,8 @@ object C4Assignment {
     }
 
     val orders_ds = load_jsonl("gs://de-training-input/alimazon/200000/client-orders/")
-    val min_date = LocalDateTime.now().minusMonths(6).toString;
+    val max_date_on_df = orders_ds.agg(max("timestamp")).collect()(0)(0).toString
+    val min_date = LocalDateTime.parse(max_date_on_df).minusMonths(6).toString;
 
     // Best Selling Hours
     val best_selling_hours = orders_ds.
