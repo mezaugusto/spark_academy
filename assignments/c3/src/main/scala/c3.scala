@@ -31,14 +31,14 @@ object C3Assignment {
     }
 
     val base_path = "gs://de-training-output-augustomeza/c3/assignment"
-    val attempt = "4"
+    val attempt = "5"
     val orders_ds = load_jsonl("gs://de-training-input/alimazon/200000/client-orders/")
 
     // TOP 10 BY WEEK
     val grouped_by_weekday_product = orders_ds.
       withColumn("weekday", date_format($"timestamp", "EEEE")).
       groupBy("product_id", "weekday").
-      agg(sum("quantity") as "total_orders", count("id") as "count").
+      agg(sum("quantity") as "total_items", count("id") as "total_orders").
       cache()
 
     val WEEKDAYS = Seq("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
@@ -46,8 +46,8 @@ object C3Assignment {
 
     WEEKDAYS.map(weekday => {
       writeDataFrame(grouped_by_weekday_product.
-        select("product_id", "weekday", "count").
-        orderBy(desc("count")).
+        select("product_id", "weekday", "total_items").
+        orderBy(desc("total_items")).
         where($"weekday" <=> weekday).
         limit(10)
       , s"$weekday_path/total_items/$attempt/$weekday")
