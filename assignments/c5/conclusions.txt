@@ -1,0 +1,10 @@
+Time in miliseconds
+Stocks with 10 partition(s)
+Duration:16857
+Stocks with 150 partition(s)
+Duration:106856
+Stocks with 800 partition(s)
+Duration:446705
+
+Considering our setup only has two worker nodes we can conclude that beyond 10 partitions we get a performance impact.
+The rule of thumb of having 2 partitions per core is proven for this case.
